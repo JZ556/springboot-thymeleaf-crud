@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.joe.beststore.services.ProductRepository;
@@ -83,6 +84,8 @@ public class ProductController{
             return "products/CreateProduct";
         }
 
+
+        //save to db
         Product product = new Product();
         product.setName(productDto.getName());
         product.setBrand(productDto.getBrand());
@@ -97,4 +100,27 @@ public class ProductController{
         return "redirect:/products";
     }
 
+    @GetMapping({"/edit"})
+    public String ShowEditPage(
+        Model model,
+        @RequestParam int id
+    ){
+        try{
+            Product product = repo.findById(id).get();
+            model.addAttribute("product", product);
+
+            ProductDto productDto = new ProductDto();
+            productDto.setName(product.getName());
+            productDto.setBrand(product.getBrand());
+            productDto.setCategory(product.getCategory());
+            productDto.setPrice(product.getPrice());
+            productDto.setDescription(product.getDescription());
+            model.addAttribute("productDto", productDto);
+
+        }catch(Exception ex){
+            System.out.println("Exception: " + ex.getMessage());
+            return "redirect:/products";
+        }
+        return "products/EditProduct";
+    }
 }
