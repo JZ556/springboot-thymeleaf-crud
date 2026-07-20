@@ -123,4 +123,56 @@ public class ProductController{
         }
         return "products/EditProduct";
     }
+
+    @PostMapping({"/edit"})
+    public String UpdateProduct(
+        Model model,
+        @RequestParam int id,
+        @Valid @ModelAttribute ProductDto productDto,
+        BindingResult result
+    ){
+
+        try{
+            Product product = repo.findById(id).get();
+            model.addAttribute("product", product);
+
+            if(result.hasErrors()){
+                return "products/EditProduct";
+            }
+            
+            if(!productDto.getImageFile().isEmpty()){
+                //delete old image
+                String uploadDir = "src/main/resources/static/images/";
+                Path uploadPath = Paths.get(uploadDir);
+                Path oldImagePath = uploadPath.resolve(product.getImageFileName());
+
+                try{
+                    Files.deleteIfExists(oldImagePath);
+                }catch(Exception ex){
+                    System.out.println("Exception:" + ex.getMessage());
+                }
+
+                MultipartFile image = productDto.getImageFile();
+                Date createdAt = new Date();
+                String storageFileName = createdAt.getTime() + "_" + image.getOriginalFilename();
+            
+                try (InputStream inputStream = image.getInputStream()) {
+                    Files.copy(inputStream, uploadPath.resolve(storageFileName), StandardCopyOption.REPLACE_EXISTING);
+                }
+
+                product.setImageFileName(storageFileName);
+            
+            }
+            product.setName(productDto.getName());
+            product.setBrand(productDto.getBrand());
+            product.setCategory(productDto.getCategory());
+            product.setPrice(productDto.getPrice());
+            product.setDescription(productDto.getDescription());
+
+            repo.save(product);
+        }catch(Exception exception){
+            System.out.println("Exception:" + exception.getMessage());
+        }
+        return "redirect:/products";
+    }
 }
