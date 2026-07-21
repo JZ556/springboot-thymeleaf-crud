@@ -26,6 +26,10 @@ public class ProductDto {
 
     private MultipartFile imageFile;
 
+    public ProductDto() {
+    }
+
+
     public String getName() {
         return name;
     }

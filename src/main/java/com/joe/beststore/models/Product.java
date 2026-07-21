@@ -25,6 +25,10 @@ public class Product {
     private Date createdAt;
     private String imageFileName;
 
+
+    public Product() {
+    }
+
     public int getId() {
         return id;
     }
@@ -89,4 +93,3 @@ public class Product {
         this.imageFileName = imageFileName;
     }
 }
-
